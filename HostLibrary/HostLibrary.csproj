@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <Import Project="..\Project.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+    <PackageReference Include="NLog" Version="4.7.15" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Localization\" />
+  </ItemGroup>
+	
+  <Target Name="ShowPackageName" AfterTargets="Pack">
+    <Message Text="OutputData_PackagePath: $(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" Importance="high" />
+  </Target>
+
+  <Target Name="CleanPackageCache" AfterTargets="Pack" Condition=" '$(DisableCleanPackageCache)' == '' ">
+    <RemoveDir Directories="$(NuGetPackageRoot)$(PackageId)\$(PackageVersion)">
+      <Output TaskParameter="RemovedDirectories" ItemName="CleanPackageCacheRemoved" />
+    </RemoveDir>
+    <Message Text="Package removed from cache: @(CleanPackageCacheRemoved)" Importance="high" />
+    <Exec ContinueOnError="True" Command="dotnet nuget push -s local_nuget $(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg">
+      <Output TaskParameter="ExitCode" PropertyName="LocalDevPushError" />
+    </Exec>
+    <Delete Files="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" Condition="$(LocalDevPushError) == '0'">
+      <Output TaskParameter="DeletedFiles" ItemName="DeletedNugetList" />
+    </Delete>
+    <Message Text="Deleted nuget file: @(DeletedNugetList)" Importance="high" Condition="$(LocalDevPushError) == '0'" />
+  </Target>
+
+</Project>
