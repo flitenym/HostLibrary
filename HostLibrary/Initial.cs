@@ -54,6 +54,7 @@ namespace HostLibrary
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetSection("Project:Jwt:Key").Get<string>())),
                             // валидация ключа безопасности
                             ValidateIssuerSigningKey = true,
+                            ClockSkew = TimeSpan.Zero
                         };
                     });
 

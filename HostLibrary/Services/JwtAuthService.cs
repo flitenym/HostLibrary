@@ -36,6 +36,7 @@ namespace HostLibrary.Services
                 jwt = new JwtSecurityToken(
                     issuer: _configuration.GetSection("Project:Jwt:Issuer").Get<string>(),
                     audience: _configuration.GetSection("Project:Jwt:Audience").Get<string>(),
+                    notBefore: DateTime.UtcNow,
                     expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(_configuration.GetSection("Project:Jwt:Lifetime").Get<int>())),
                     claims: claimsIdentity.Claims,
                     signingCredentials: new SigningCredentials(
